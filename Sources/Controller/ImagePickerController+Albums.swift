@@ -30,6 +30,7 @@ extension ImagePickerController: AlbumsViewControllerDelegate {
     
     func albumsViewController(_ albumsViewController: AlbumsViewController, didSelectAlbum album: PHAssetCollection) {
         select(album: album)
+        persister.save(album.localIdentifier, by: .lastSelectedAlbumID)
         albumsViewController.dismiss(animated: true)
     }
 

@@ -89,8 +89,27 @@ class AssetsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateCollectionViewLayout(for: traitCollection)
+        if settings.list.saveLastSelectedAssetPosition {
+            scrollToLastSelectedAsset()
+        }
     }
 
+    fileprivate func scrollToLastSelectedAsset() {
+        if let lastSelectedAsset = store.lastSelectedAssetID {
+            fetchResult.enumerateObjects { (asset, index, stop) in
+                guard asset.localIdentifier == lastSelectedAsset else { return }
+                self.collectionView.scrollToItem(at: IndexPath(row: index, section: 0), at: UICollectionView.ScrollPosition.centeredVertically, animated: false)
+                stop.pointee = true
+            }
+        }
+    }
+    
+    fileprivate func scrollToLastSelectedAssetIn(_ album: PHAssetCollection) {
+        if store.lastSelectedAlbumID == album.localIdentifier {
+            scrollToLastSelectedAsset()
+        }
+    }
+    
     func showAssets(in album: PHAssetCollection) {
         fetchResult = PHAsset.fetchAssets(in: album, options: settings.fetch.assets.options)
         collectionView.reloadData()

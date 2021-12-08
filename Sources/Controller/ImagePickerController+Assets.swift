@@ -33,7 +33,7 @@ extension ImagePickerController: AssetsViewControllerDelegate {
         }
         updatedDoneButton()
         imagePickerDelegate?.imagePicker(self, didSelectAsset: asset)
-
+        persister.save(asset.localIdentifier, by: .lastSelectedAssetID)
         if assetStore.count >= settings.selection.max {
             imagePickerDelegate?.imagePicker(self, didReachSelectionLimit: assetStore.count)
         }

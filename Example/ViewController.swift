@@ -27,24 +27,52 @@ import Photos
 class ViewController: UIViewController {
     
     @IBAction func showImagePicker(_ sender: UIButton) {
+//        let imagePicker = ImagePickerController()
+//        imagePicker.settings.selection.max = 5
+//        imagePicker.settings.theme.selectionStyle = .numbered
+//        imagePicker.settings.fetch.assets.supportedMediaTypes = [.image, .video]
+//        imagePicker.settings.selection.unselectOnReachingMax = true
+//
+//        let start = Date()
+//        self.presentImagePicker(imagePicker, select: { (asset) in
+//            print("Selected: \(asset)")
+//        }, deselect: { (asset) in
+//            print("Deselected: \(asset)")
+//        }, cancel: { (assets) in
+//            print("Canceled with selections: \(assets)")
+//        }, finish: { (assets) in
+//            print("Finished with selections: \(assets)")
+//        }, completion: {
+//            let finish = Date()
+//            print(finish.timeIntervalSince(start))
+//        })
+        
         let imagePicker = ImagePickerController()
-        imagePicker.settings.selection.max = 5
+        imagePicker.settings.list.saveLastSelectedAssetPosition = true
+        imagePicker.settings.selection.max = 4
+        imagePicker.settings.fetch.assets.supportedMediaTypes = [.image]
         imagePicker.settings.theme.selectionStyle = .numbered
-        imagePicker.settings.fetch.assets.supportedMediaTypes = [.image, .video]
-        imagePicker.settings.selection.unselectOnReachingMax = true
-
-        let start = Date()
-        self.presentImagePicker(imagePicker, select: { (asset) in
-            print("Selected: \(asset)")
+        imagePicker.settings.fetch.album.fetchResults.append(PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumRegular, options: imagePicker.settings.fetch.album.options))
+        //        imagePicker.albumButton.tintColor = .green
+        imagePicker.cancelButton.tintColor = .green
+        imagePicker.doneButton.tintColor = .green
+        //        imagePicker.navigationBar.barTintColor = .red
+        imagePicker.settings.list.cellsPerRow = {(verticalSize: UIUserInterfaceSizeClass, horizontalSize: UIUserInterfaceSizeClass) -> Int in
+            switch (verticalSize, horizontalSize) {
+            case (.regular, .regular):
+                return 3
+            default:
+                return 2
+            }
+        }
+        presentImagePicker(imagePicker, select: { (asset) in
+            // User selected an asset. Do something with it. Perhaps begin processing/upload?
         }, deselect: { (asset) in
-            print("Deselected: \(asset)")
+            // User deselected an asset. Cancel whatever you did when asset was selected.
         }, cancel: { (assets) in
-            print("Canceled with selections: \(assets)")
+            // User canceled selection.
         }, finish: { (assets) in
-            print("Finished with selections: \(assets)")
-        }, completion: {
-            let finish = Date()
-            print(finish.timeIntervalSince(start))
+            
         })
     }
     

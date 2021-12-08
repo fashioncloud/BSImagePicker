@@ -23,11 +23,59 @@
 import Foundation
 import Photos
 
+enum ModelPersisterKey: String {
+    case lastSelectedAssetID
+    case lastSelectedAlbumID
+}
+
+protocol Persister {
+    func save<T: Codable>(_ model: T, by key: ModelPersisterKey)
+    func model<T: Codable>(by key: ModelPersisterKey) -> T?
+    func clean(by key: ModelPersisterKey)
+}
+
+struct DataModelPersister: Persister {
+    func save<T: Codable>(_ model: T, by key: ModelPersisterKey) {
+        UserDefaults.standard.set(model, forKey: key.rawValue)
+    }
+    
+    func model<T: Codable>(by key: ModelPersisterKey) -> T? {
+        return UserDefaults.standard.value(forKey: key.rawValue) as? T
+    }
+    
+    func clean(by key: ModelPersisterKey) {
+        UserDefaults.standard.removeObject(forKey: key.rawValue)
+    }
+}
+
 @objcMembers public class AssetStore : NSObject {
-    public private(set) var assets: [PHAsset]
+    private var _assets: [PHAsset] = []
+    private let persister: Persister
+    
+    public private(set) var assets: [PHAsset] {
+        set {
+            _assets = newValue
+            if let last = newValue.last {
+                persister.save(last.localIdentifier, by: .lastSelectedAssetID)
+            }
+        }
+        get {
+            return _assets
+        }
+    }
+    
+    var lastSelectedAlbumID: String? {
+        return persister.model(by: .lastSelectedAlbumID)
+    }
+    
+    var lastSelectedAssetID: String? {
+        return persister.model(by: .lastSelectedAssetID)
+    }
 
     public init(assets: [PHAsset] = []) {
-        self.assets = assets
+        _assets = assets
+        persister = DataModelPersister()
+        super.init()
     }
 
     public var count: Int {

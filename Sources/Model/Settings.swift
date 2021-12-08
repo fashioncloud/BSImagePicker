@@ -82,6 +82,7 @@ import Photos
 
     @objc(BSImagePickerList)
     @objcMembers public class List : NSObject {
+        @objc public lazy var saveLastSelectedAssetPosition: Bool = false
         /// How much spacing between cells
         public lazy var spacing: CGFloat = 2
         

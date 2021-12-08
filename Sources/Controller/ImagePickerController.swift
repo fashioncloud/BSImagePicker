@@ -43,6 +43,7 @@ import Photos
 
     // MARK: Internal properties
     var assetStore: AssetStore
+    let persister: Persister
     var onSelection: ((_ asset: PHAsset) -> Void)?
     var onDeselection: ((_ asset: PHAsset) -> Void)?
     var onCancel: ((_ assets: [PHAsset]) -> Void)?
@@ -76,13 +77,25 @@ import Photos
     public init(selectedAssets: [PHAsset] = []) {
         assetStore = AssetStore(assets: selectedAssets)
         assetsViewController = AssetsViewController(store: assetStore)
+        persister = DataModelPersister()
         super.init(nibName: nil, bundle: nil)
     }
 
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
+    func getAlbumToSelect() -> PHAssetCollection? {
+        if settings.list.saveLastSelectedAssetPosition {
+            if let lastSelectedAlbumIdentifier = assetStore.lastSelectedAlbumID,
+               let lastSelectedAlbum = albums.first(where: { $0.localIdentifier == lastSelectedAlbumIdentifier }){
+                return lastSelectedAlbum
+            }
+        }
+        
+        return albums.first
+    }
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -137,7 +150,7 @@ import Photos
             navigationBar.barTintColor = .systemBackgroundColor
         }
 
-        if let firstAlbum = albums.first {
+        if let firstAlbum = getAlbumToSelect() {
             select(album: firstAlbum)
         }
     }
